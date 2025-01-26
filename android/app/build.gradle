@@ -1,0 +1,102 @@
+plugins {
+    id "com.android.application"
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+def localProperties = new Properties()
+def localPropertiesFile = rootProject.file('local.properties')
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.withReader('UTF-8') { reader ->
+        localProperties.load(reader)
+    }
+}
+
+def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
+if (flutterVersionCode == null) {
+    flutterVersionCode = '1'
+}
+
+def flutterVersionName = localProperties.getProperty('flutter.versionName')
+if (flutterVersionName == null) {
+    flutterVersionName = '1.0'
+}
+android {
+    namespace = "com.example.test_video_player"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = flutter.ndkVersion
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
+
+
+    defaultConfig {
+        applicationId "com.shzwz.zwyqsa"
+        minSdkVersion 21
+        targetSdkVersion flutter.targetSdkVersion
+        versionCode flutterVersionCode.toInteger()
+        versionName flutterVersionName
+        flavorDimensions "platform"
+    }
+
+    signingConfigs {
+        debug {
+            storeFile file('ysxkey.jks')
+            storePassword "111111"
+            keyAlias "ysx"
+            keyPassword "111111"
+        }
+        release {
+            storeFile file('ysxkey.jks')
+            storePassword "111111"
+            keyAlias "ysx"
+            keyPassword "111111"
+        }
+    }
+
+    productFlavors {
+        zwyqsa_vivo {
+            applicationId "com.shzwz.zwyqsa"
+            versionCode 1010
+            versionName "1.0.1"
+            manifestPlaceholders = ["APP_NAME": "债务逾期上岸"]
+        }
+        gdfzsa_huawei {
+            applicationId "com.shszm.gdfzsa"
+            versionCode 1090
+            versionName "1.0.9"
+            manifestPlaceholders = ["APP_NAME": "债务逾期上岸"]
+        }
+    }
+
+    buildTypes {
+        debug {
+            minifyEnabled false
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true   // 开启混淆
+            // zipAlignEnabled true  // 压缩优化
+            // shrinkResources true  // 移出无用资源
+            signingConfig signingConfigs.release
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            ndk {
+                // noinspection ChromeOsAbiSupport
+                abiFilters 'armeabi-v7a', 'arm64-v8a'
+            }
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+dependencies {
+    implementation("com.github.gzu-liyujiang:Android_CN_OAID:4.2.7")
+}
