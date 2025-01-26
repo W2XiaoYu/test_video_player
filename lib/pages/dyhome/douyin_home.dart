@@ -46,62 +46,56 @@ class _DouyinHomeState extends State<DouyinHome> {
       initialIndex: 0,
       child: _buildBody(),
     );
-    // return Scaffold(
-    //   backgroundColor: Colors.black,
-    //   body: PageView.builder(
-    //     controller: _pageController,
-    //     scrollDirection: Axis.vertical,
-    //     onPageChanged: (index) {
-    //       setState(
-    //         () {
-    //           _currentPage = index;
-    //         },
-    //       );
-    //     },
-    //     itemBuilder: (context, index) {
-    //       return VideoPlayerItem(
-    //         videoUrl: videoUrls[index],
-    //         isCurrent: index == _currentPage,
-    //       );
-    //     },
-    //   ),
-    // );
   }
 
-  Widget _buildOverlayUI() {
-    return Column(
-      children: [
-        AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Text('推荐'),
-        )
-      ],
+  Widget _buildVideo() {
+    return PageView.builder(
+      controller: _pageController,
+      scrollDirection: Axis.vertical,
+      onPageChanged: (index) {
+        setState(
+          () {
+            _currentPage = index;
+          },
+        );
+      },
+      itemBuilder: (context, index) {
+        return VideoPlayerItem(
+          videoUrl: videoUrls[index],
+          isCurrent: index == _currentPage,
+        );
+      },
     );
   }
 
   Widget _buildBody() {
     return Scaffold(
-      backgroundColor: Colors.lightBlue,
+      backgroundColor: Colors.black,
       body: Stack(
         children: [
           TabBarView(
             children: [
+              Stack(children: [
+                _buildVideo(),
+              ]),
               Center(
-                child: Text('page 1'),
+                child: Text(
+                  'page 2',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
               Center(
-                child: Text('page 2'),
-              ),
-              Center(
-                child: Text('page 3'),
+                child: Text(
+                  'page 3',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
           Positioned(
             width: MediaQuery.of(context).size.width,
             top: MediaQuery.of(context).padding.top,
-            child: Container(
+            child: SizedBox(
               height: 56.w,
               child: Row(
                 children: [
@@ -122,9 +116,13 @@ class _DouyinHomeState extends State<DouyinHome> {
                       ),
                       child: Center(
                         child: TabBar(
+                          splashFactory: NoSplash.splashFactory,
+                          //去掉水波纹
                           dividerHeight: 0,
-                          indicatorColor: Colors.white, //选中下划线的颜色
-                          indicatorSize: TabBarIndicatorSize.label, //选中下划线的长度
+                          indicatorColor: Colors.white,
+                          //选中下划线的颜色
+                          indicatorSize: TabBarIndicatorSize.label,
+                          //选中下划线的长度
                           tabs: [
                             Tab(
                               child: Text(
@@ -186,6 +184,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
   bool _showControls = false;
   bool _isLiked = false;
   int _likeCount = 2345;
+  bool _isPaused = false;
 
   @override
   void initState() {
@@ -205,7 +204,7 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
       looping: true,
       showControls: false,
     );
-
+    setState(() {});
     if (widget.isCurrent) {
       _videoController.play();
     }
@@ -216,6 +215,9 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.isCurrent && !widget.isCurrent) {
       _videoController.pause();
+      setState(() {
+        _isPaused = true;
+      });
     } else if (!oldWidget.isCurrent && widget.isCurrent) {
       _videoController.play();
     }
@@ -247,70 +249,94 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                   ),
                 ),
 
-          // 覆盖的UI内容
+          //操作遮罩层
           _buildOverlayUI(),
+          if (_isPaused)
+            Center(
+              child: Icon(
+                Icons.play_arrow,
+                color: Colors.white,
+                size: 240,
+              ),
+            )
         ],
       ),
     );
   }
 
   Widget _buildOverlayUI() {
-    return Column(
-      children: [
-        // 顶部状态栏
-        AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          title: Row(
-            children: [
-              Text('推荐', style: TextStyle(fontSize: 18)),
-              Icon(Icons.arrow_drop_down, size: 20),
-            ],
-          ),
-          actions: [
-            IconButton(
-              icon: Icon(Icons.search),
-              onPressed: () {},
+    return GestureDetector(
+      behavior: HitTestBehavior.translucent, //让子元素空区域也可以点击
+      onTap: () {
+        // 确保控制器已初始化
+        if (!_videoController.value.isInitialized) return;
+        if (_videoController.value.isPlaying) {
+          _videoController.pause();
+        } else {
+          _videoController.play();
+        }
+        setState(() {
+          _isPaused = !_videoController.value.isPlaying;
+        });
+      },
+      child: Container(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            // 底部控制区域
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  // 左侧用户信息
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text('@抖音用户',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold)),
+                        SizedBox(height: 10),
+                        Text(
+                          '这是一个有趣的短视频，快来点赞吧！',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.red,
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.music_note,
+                              size: 16,
+                              color: Colors.red,
+                            ),
+                            Text(
+                              '原声 - 原创音乐',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.red,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  // 右侧互动按钮
+                  _buildRightActionBar(),
+                ],
+              ),
             ),
           ],
         ),
-
-        Expanded(child: Container()),
-
-        // 底部控制区域
-        Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              // 左侧用户信息
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text('@抖音用户',
-                        style: TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold)),
-                    SizedBox(height: 10),
-                    Text('这是一个有趣的短视频，快来点赞吧！', style: TextStyle(fontSize: 14)),
-                    SizedBox(height: 10),
-                    Row(
-                      children: [
-                        Icon(Icons.music_note, size: 16),
-                        Text('原声 - 原创音乐', style: TextStyle(fontSize: 12)),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-
-              // 右侧互动按钮
-              _buildRightActionBar(),
-            ],
-          ),
-        ),
-      ],
+      ),
     );
   }
 
