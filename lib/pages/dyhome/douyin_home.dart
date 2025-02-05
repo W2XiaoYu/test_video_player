@@ -1,4 +1,5 @@
 import 'package:chewie/chewie.dart';
+import 'package:chewie/src/progress_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -252,11 +253,19 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
           //操作遮罩层
           _buildOverlayUI(),
           if (_isPaused)
-            Center(
-              child: Icon(
-                Icons.play_arrow,
-                color: Colors.white,
-                size: 240,
+            GestureDetector(
+              onTap: () {
+                _videoController.play();
+                setState(() {
+                  _isPaused = false;
+                });
+              },
+              child: Center(
+                child: Icon(
+                  Icons.play_arrow,
+                  color: Colors.white,
+                  size: 240,
+                ),
               ),
             )
         ],
@@ -325,10 +334,65 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
                             ),
                           ],
                         ),
+                        Container(
+                          alignment: Alignment.center,
+                          height: 15.w,
+                          child: Row(
+                            children: [
+                              Expanded(
+                                flex: 1,
+                                child: //视频播放的进度条
+                                    VideoProgressBar(
+                                  _videoController,
+                                  barHeight: 2,
+                                  handleHeight: 2,
+                                  drawShadow: true,
+                                  colors: ChewieProgressColors(
+                                    playedColor: Colors.white,
+                                    handleColor: Colors.white,
+                                    bufferedColor:
+                                        Colors.white.withValues(alpha: 0.4),
+                                    backgroundColor:
+                                        Colors.white.withValues(alpha: 0.4),
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 5.w,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    _formatDuration(
+                                        _videoController.value.position),
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
+                                  Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(horizontal: 2),
+                                    child: Text(
+                                      '/',
+                                      style: TextStyle(
+                                          color: Colors.white, fontSize: 12),
+                                    ),
+                                  ),
+                                  Text(
+                                    _formatDuration(
+                                        _videoController.value.duration),
+                                    style: TextStyle(
+                                        color: Colors.white, fontSize: 12),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        )
                       ],
                     ),
                   ),
-
                   // 右侧互动按钮
                   _buildRightActionBar(),
                 ],
@@ -382,5 +446,15 @@ class _VideoPlayerItemState extends State<VideoPlayerItem> {
         ],
       ),
     );
+  }
+
+  String _formatDuration(Duration duration) {
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final hours = twoDigits(duration.inHours);
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final seconds = twoDigits(duration.inSeconds.remainder(60));
+    return duration.inHours > 0
+        ? "$hours:$minutes:$seconds"
+        : "$minutes:$seconds";
   }
 }
