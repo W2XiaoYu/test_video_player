@@ -2,7 +2,9 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:test_video_player/pages/dyhome/douyin_home.dart';
 import 'package:test_video_player/pages/main_page/home_chat/home_chat.dart';
+import 'package:test_video_player/pages/main_page/mine/mine.dart';
 
 class MainPage extends StatefulWidget {
   final int index;
@@ -15,21 +17,16 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   int _index = 0;
-  GlobalKey<_RowItemState> _firstKey = GlobalKey();
+  final List<Widget> _list = [
+    DouyinHome(),
+    HomeChat(),
+    MinePage()
+  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          _firstKey.currentState?.setState(() {
-            _firstKey.currentState?._innerString =
-                'old:' + _firstKey.currentState!._innerString;
-          });
-        },
-        child: Icon(Icons.delete),
-      ),
-      body: HomeChat(),
+      body: _list[_index],
       bottomNavigationBar: BottomNavigationBar(
           currentIndex: _index,
           onTap: (index) {

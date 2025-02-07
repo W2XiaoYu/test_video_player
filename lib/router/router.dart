@@ -13,7 +13,7 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 class RouterList {
   static final router = GoRouter(
-    initialLocation: '/dy',
+    initialLocation: '/main',
     navigatorKey: navigatorKey,
     routes: <RouteBase>[
       GoRoute(
@@ -50,11 +50,7 @@ class RouterList {
       GoRoute(
         path: '/dy',
         builder: (BuildContext context, GoRouterState state) {
-          return const DouyinHome(
-            videoUrl:
-                'https://sf1-cdn-tos.huoshanstatic.com/obj/media-fe/xgplayer_doc_video/mp4/xgplayer-demo-360p.mp4',
-            isCurrent: true,
-          );
+          return const DouyinHome();
         },
       )
     ],

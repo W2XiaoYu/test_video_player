@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
           initial: savedThemeMode ?? AdaptiveThemeMode.light,
           builder: (theme, darkTheme) {
             return MaterialApp.router(
-              title: '宇络马甲包',
+              title: '抖音',
               theme: theme,
               darkTheme: darkTheme,
               routerConfig: RouterList.router,
