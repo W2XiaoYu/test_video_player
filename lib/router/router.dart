@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:test_video_player/pages/dyhome/douyin_home.dart';
 import 'package:test_video_player/pages/main_page/home_chat/home_chat.dart';
 import 'package:test_video_player/pages/main_page/main_page.dart';
+import 'package:test_video_player/pages/main_page/mine/test_hero.dart';
 import 'package:test_video_player/pages/splash/splash.dart';
 
 import '../pages/video_player.dart';
@@ -52,7 +53,12 @@ class RouterList {
         builder: (BuildContext context, GoRouterState state) {
           return const DouyinHome();
         },
-      )
+      ),
+      GoRoute(
+          path: '/test',
+          builder: (BuildContext context, GoRouterState state) {
+            return TestHeroPage();
+          })
     ],
   );
 }

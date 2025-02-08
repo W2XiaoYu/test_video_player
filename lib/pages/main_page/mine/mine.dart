@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
+import 'package:go_router/go_router.dart';
 class MinePage extends StatefulWidget {
   const MinePage({super.key});
 
@@ -19,6 +19,7 @@ class _MinePageState extends State<MinePage>
   final ScrollController _scrollController = ScrollController();
   double _appBarOpacity = 0.0;
   late TabController _tabController; // 使用 late 确保稍后初始化
+  bool isExpand = false;
 
   @override
   void initState() {
@@ -44,11 +45,13 @@ class _MinePageState extends State<MinePage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      drawer: _buildDrawer(),
       body: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder: (context, innerBoxIsScrolled) {
           return [
             SliverAppBar(
+              // automaticallyImplyLeading: false,
               expandedHeight: 250.0,
               floating: false,
               pinned: true,
@@ -199,12 +202,9 @@ class _MinePageState extends State<MinePage>
 
                       controller: _tabController,
                       tabs: [
-                        SizedBox(
-                          child:Text('动态') ,
+                        Tab(
+                          text: '动态',
                         ),
-                        // Tab(
-                        //   text: '动态',
-                        // ),
                         Tab(text: '收藏'),
                         Tab(text: '关注'),
                       ]),
@@ -221,10 +221,95 @@ class _MinePageState extends State<MinePage>
                 title: Text('这是第 $index 个内容'),
               ),
             ),
-            Center(child: Text('Content for Tab 2')),
+            ListView(
+              children: [
+                IconButton(
+                  onPressed: () => setState(() => isExpand = !isExpand),
+                  icon: AnimatedRotation(
+                    duration: Duration(microseconds: 200),
+                    turns: isExpand ? 0.5 : 1,
+                    child: Icon(
+                      isExpand ? Icons.expand_less : Icons.expand_more,
+                      color: Colors.blue,
+                    ),
+                  ),
+                ),
+                AnimatedSize(
+                  duration: Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                  child: isExpand
+                      ? ListView.builder(
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: 6,
+                          shrinkWrap: true,
+                          // Prevents overflow if the list size exceeds screen height
+                          itemBuilder: (context, index) => ListTile(
+                            title: Text('Item $index'),
+                          ),
+                        )
+                      : SizedBox.shrink(),
+                ),
+              ],
+            ),
             Center(child: Text('Content for Tab 3')),
           ],
         ),
+      ),
+    );
+  }
+
+// 抽屉（Drawer）部分
+  Widget _buildDrawer() {
+    return Drawer(
+      child: Column(
+        children: [
+          // 顶部用户信息部分
+          UserAccountsDrawerHeader(
+            accountName: Text("怪你过分美丽"),
+            accountEmail: Text("13221001308@example.com"),
+            currentAccountPicture: ClipRRect(
+              child: Hero(
+                tag: 'testTag',
+                child: Image.network(headImg),
+              ),
+            ),
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+          ),
+          // 菜单项
+          ListTile(
+            leading: Icon(Icons.home),
+            title: Text("主页"),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.favorite),
+            title: Text("收藏"),
+            onTap: () {
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.settings),
+            title: Text("设置"),
+            onTap: () {
+              context.push('/test');
+              // Navigator.pop(context);
+            },
+          ),
+          Spacer(), // 让退出按钮固定在底部
+          ListTile(
+            leading: Icon(Icons.exit_to_app, color: Colors.red),
+            title: Text("退出登录", style: TextStyle(color: Colors.red)),
+            onTap: () {
+              // 在这里添加退出逻辑
+              Navigator.pop(context);
+            },
+          ),
+        ],
       ),
     );
   }
